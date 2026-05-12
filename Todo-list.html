@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>To Do List</title>
+     <link rel="stylesheet" href="style.css">
+     <style>
+          body {
+               font-family: 'Poppins', sans-serif;
+               background-color: rgb(17, 17, 17);
+               display: flex;
+               flex-direction: column;
+               justify-content: center;
+               align-items: center;
+               height: 95vh;
+          }
+
+          h1 {
+               color: white;
+               margin: 30px;
+          }
+
+          section {
+               display: flex;
+               flex-direction: column;
+               align-items: center;
+          }
+
+          .sm-mouth {
+               font-size: 60px;
+               margin-left: 22px;
+               margin-top: 3px;
+               height: 30px;
+               line-height: 50px;
+               color: #dcd634;
+          }
+
+          .eye {
+               display: inline-block;
+               width: 20px;
+               height: 20px;
+               background-color: #dcd634;
+               border-radius: 50%;
+               vertical-align: middle;
+          }
+
+          .add-todo {
+               display: flex;
+               gap: 20px;
+               margin-bottom: 20px;
+          }
+
+          .add-todo input {
+               font-size: large;
+               padding: 10px;
+               border-radius: 10px;
+               border: none;
+               width: 300px;
+               border-radius: 30px;
+          }
+
+          input:focus {
+               outline: 2px solid #dcd634;
+               outline-offset: 2px;
+          }
+
+          .add-todo button {
+               font-size: large;
+               padding: 10px 35px;
+               border-radius: 30px;
+               border: 2px solid #dcd634;
+               background-color: #dcd634;
+               color: black;
+               cursor: pointer;
+          }
+
+          .todo-list {
+               border: 1px solid rgb(67, 64, 64);
+               border-radius: 20px;
+               min-width: 405px;
+               max-width: 750px;
+               min-height: 450px;
+               padding: 22px;
+               color: white;
+               background-color: #262626;
+          }
+
+          .todo-list li {
+               list-style: circle;
+               color: white;
+               font-size: 17px;
+               line-height: 28px;
+               padding: 12px 0px 12px 0px;
+               margin: 0px 10px 0px 20px;
+          }
+
+          .todo-list button {
+               font-size: 16px;
+               padding: 5px 8px;
+               border-radius: 30px;
+               border: 2px solid #dcd634;
+               background-color: #dcd634;
+               color: black;
+               cursor: pointer;
+          }
+
+
+          .todo-list li:hover {
+               color: orange;
+               text-shadow: 0 0 20px #f8c857;
+               transition: color 0.3s ease;
+          }
+
+          button:hover {
+               background-color: #181717;
+               color: #d4d46b;
+               transition: 0.2s ease-in;
+               transform: scale(1.06);
+          }
+
+          .todo-text {
+               display: inline-block;
+               width: 80%;
+          }
+     </style>
+</head>
+
+<body>
+     <form>
+          <section>
+               <h1>
+                    <div class="smilly">T<span class="eye"></span> d<span class="eye"></span> List </div>
+                    <div class="sm-mouth">︶</div>
+               </h1>
+               <div class="add-todo">
+                    <input type="text" name="inputfield" id="inputfield" placeholder="Add a new task...">
+                    <button class="btn">Add</button>
+               </div>
+               <ul class="todo-list">
+                    <div class="empty" id="emptyText">No tasks yet 🚀</div>
+                    <!-- || List comes HERE...||  -->
+
+               </ul>
+          </section>
+     </form>
+     <script>
+          const mainTodoElem = document.querySelector(".todo-list");
+          const inputValue = document.getElementById("inputfield")
+          const emptyText = document.getElementById("emptyText");
+
+          const getLocalTodoList = () => {
+               return JSON.parse(localStorage.getItem("todoList"));
+          }
+          const updateLocalTodoList = (localTodoList) => {
+               localStorage.setItem("todoList", JSON.stringify(localTodoList))
+          }
+          let localTodoList = getLocalTodoList() || [];
+
+          if (localTodoList.length > 0) {
+               emptyText.style.display = "none";
+          }
+
+          const createListElem = (element) => {
+               const listElem = document.createElement("li");
+               const textElem = document.createElement("div");
+               textElem.classList.add("todo-text")
+               const deleteBtn = document.createElement("button");
+               deleteBtn.classList.add("btn")
+               deleteBtn.innerText = "Delete";
+               textElem.innerText = element;
+               listElem.append(textElem)
+               listElem.append(deleteBtn)
+               mainTodoElem.append(listElem)
+               inputValue.value = "";
+          }
+
+          const addTodoList = (e) => {
+               e.preventDefault();
+               emptyText.style.display = "none";
+               let todoListValue = inputValue.value.trim();
+               if (!localTodoList.includes(todoListValue) && !localTodoList.includes(todoListValue.toLowerCase()) && todoListValue !== "") {
+                    localTodoList.push(todoListValue);
+                    console.log(localTodoList);
+                    localStorage.setItem("todoList", JSON.stringify(localTodoList));
+                    createListElem(inputValue.value);
+               } else {
+                    alert("Please enter a unique and non-empty value.");
+               }
+               inputValue.value = "";
+          }
+
+          const showTodoList = () => {
+               console.log(localTodoList);
+               localTodoList.forEach((element) => {
+                    createListElem(element);
+               });
+          }
+          showTodoList();
+
+          const deleteTodoElem = (e) => {
+               e.preventDefault();
+               if (e.target.classList.contains("btn")) {
+                    let todoElem = e.target.previousElementSibling.innerText;
+                    localTodoList = localTodoList.filter((curElem) => { return curElem !== todoElem });
+                    updateLocalTodoList(localTodoList);
+                    e.target.parentElement.remove();
+               }
+               if (localTodoList.length === 0) {
+                    emptyText.style.display = "block";
+               }
+          }
+
+          document.querySelector(".btn").addEventListener("click", (e) => { addTodoList(e) })
+          document.querySelector(".todo-list").addEventListener("click", (e) => { deleteTodoElem(e) })
+     </script>
+</body>
+
+</html>
+<!-- this is the list item template which will be generated dynamically using JavaScript in ul
+     <li>
+          <div class="todo-text">Sample Task 1</div>
+          button class="btn">Delete</button>
+     </li>
+     <li>
+          <div class="todo-text">Sample Task 2</div>
+          <button class="btn">Delete</button>
+     </li> -->
